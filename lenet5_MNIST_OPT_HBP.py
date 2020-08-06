@@ -108,6 +108,7 @@ def my_in_conv_layers_get_sum_of_l1_norms_sorted_indices(weight_list_per_epoch):
         Arguments:
             weight List 
         Return:
+            layer_wise_filter_sorted_indices
             
     '''
     layer_wise_filter_sorted_indices = list()
@@ -132,7 +133,7 @@ def my_get_percent_prune_filter_indices(layer_wise_filter_sorted_indices,percent
         layer_wise_filter_sorted_indices:filters to be 
         percentage:percentage of filters to be pruned
     Return:
-
+        prune_filter_indices: indices of filter to be pruned
     """
     prune_filter_indices = list()
     for i in range(len(layer_wise_filter_sorted_indices)):
@@ -451,7 +452,14 @@ def custom_loss(lmbda , regularizer_value):
 
 def my_get_l1_norms_filters(model,first_time):
     """
+    Arguments:
+        model:
 
+        first_time : type boolean 
+            first_time = True => model is not pruned 
+            first_time = False => model is pruned
+        Return:
+            l1_norms of all filters of every layer as a list
     """
     conv_layers = my_get_all_conv_layers(model,first_time)
     l1_norms = list()
@@ -468,7 +476,13 @@ def my_get_l1_norms_filters(model,first_time):
 
 def my_get_regularizer_value(model,weight_list_per_epoch,percentage,first_time):
     """
-
+    Arguments:
+        model:initial model
+        weight_list_per_epoch:weight tensors at every epoch
+        percentage:percentage of filter to be pruned
+        first_time:type bool
+    Return:
+        regularizer_value
     """
     l1_norms_per_epoch = my_get_l1_norms_filters_per_epoch(weight_list_per_epoch)
     distance_matrix_list = my_get_distance_matrix_list(l1_norms_per_epoch)
@@ -486,7 +500,15 @@ def my_get_regularizer_value(model,weight_list_per_epoch,percentage,first_time):
     
 def optimize(model,weight_list_per_epoch,epochs,percentage,first_time):
     """
-
+    Arguments:
+        model:inital model
+        weight_list_per_epoch: weight tensors at every epoch
+        epochs:number of epochs to be trained on custom regularizer
+        percentage:percentage of filters to be pruned
+        first_time:type bool
+    Return:
+        model:optimized model
+        hisory: accuracies and losses over the process keras library
     """
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
 
